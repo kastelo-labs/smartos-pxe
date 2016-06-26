@@ -12,7 +12,7 @@ build() {
 
     cp -r data "$name/data"
     echo "$name" > "$name/data/BUILD"
-    tar zcvf smartos-pxe-$GOOS-$GOARCH.tar.gz "$name"
+    tar zcvf "$name.tar.gz" "$name"
 
     rm -rf  "$name"
 }
