@@ -31,29 +31,39 @@ platofrm images manually into the `data` dir.
 Use `-help` to see the available options:
 
 ```text
-# ./bin/smartos-pxe --help
-Usage of ./bin/smartos-pxe:
+# ./bin/smartos-pxe -help
+Usage of smartos-pxe:
   -boot-file string
-    	Boot file (within data-dir) (default "grub/pxegrub")
+      Boot file (within data-dir) (default "grub/pxegrub")
   -data-dir string
-    	Data directory (default "./data")
+      Data directory (default "./data")
   -download-intv duration
-    	New platform download interval (0 to disable) (default 24h0m0s)
+      New platform download interval (0 to disable) (default 24h0m0s)
   -download-latest-path string
-    	Path to latest platform indicator file (default "/Joyent_Dev/public/SmartOS/latest")
+      Path to latest platform indicator file (default "/Joyent_Dev/public/SmartOS/latest")
   -download-server string
-    	Platform download server (default "https://us-east.manta.joyent.com")
+      Platform download server (default "https://us-east.manta.joyent.com")
   -grub-console string
-    	GRUB os_console device (default "ttyS2")
+      GRUB os_console device (default "ttyS2")
   -grub-timeout duration
-    	GRUB menu timeout (default 10s)
+      GRUB menu timeout (default 10s)
   -listen string
-    	TFTP listen address (default ":69")
+      TFTP listen address (default ":69")
+  -prefer string
+      Preferred platform version (default "latest")
   -root-pw string
-    	Root password hash (default "$5$5x85uZWD$AQUMEs1UiMwXcjWjYopG2cMUm/eAoFxtjWiHokw7SL.")
+      Root password hash (default "$5$5x85uZWD$AQUMEs1UiMwXcjWjYopG2cMUm/eAoFxtjWiHokw7SL.")
   -verbose
-    	Verbose output
+      Verbose output
 ```
+
+By default the latest available platform version will be preferred. To lock
+it down to a specific version, set it using `-prefer`:
+
+```text
+# ./bin/smartos-pxe -prefer 20160622T220759Z
+```
+
 
 DHCP Configuration
 ------------------

@@ -32,6 +32,7 @@ var (
 	downloadInterval   = 24 * time.Hour
 	downloadLatestPath = "/Joyent_Dev/public/SmartOS/latest"
 	downloadServer     = "https://us-east.manta.joyent.com"
+	preferredVersion   = "latest"
 	verbose            bool
 )
 
@@ -46,6 +47,7 @@ func main() {
 	flag.StringVar(&downloadLatestPath, "download-latest-path", downloadLatestPath, "Path to latest platform indicator file")
 	flag.StringVar(&downloadServer, "download-server", downloadServer, "Platform download server")
 	flag.BoolVar(&verbose, "verbose", verbose, "Verbose output")
+	flag.StringVar(&preferredVersion, "prefer", preferredVersion, "Preferred platform version")
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)

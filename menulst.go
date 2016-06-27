@@ -69,7 +69,7 @@ func versions() ([]string, error) {
 	for i := range files {
 		files[i] = files[i][len(pattern)-1:]
 	}
-	sort.Sort(sort.Reverse(sort.StringSlice(files)))
+	sort.Sort(versionList(files))
 	return files, nil
 }
 
@@ -90,4 +90,24 @@ func overlay() ([]string, error) {
 		return nil, err
 	}
 	return files, nil
+}
+
+type versionList []string
+
+func (v versionList) Len() int {
+	return len(v)
+}
+
+func (v versionList) Less(a, b int) bool {
+	if v[a] == preferredVersion {
+		return true
+	}
+	if v[b] == preferredVersion {
+		return false
+	}
+	return b < a // Reverse sorting to get highest version at top
+}
+
+func (v versionList) Swap(a, b int) {
+	v[a], v[b] = v[b], v[a]
 }
