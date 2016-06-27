@@ -20,6 +20,8 @@ type state struct {
 	Timeout    int
 }
 
+var version = "unknown-dev"
+
 var (
 	bootfile           = "grub/pxegrub"
 	console            = "ttyS2"
@@ -49,6 +51,7 @@ func main() {
 	log.SetOutput(os.Stdout)
 	if verbose {
 		log.SetFlags(log.Lshortfile | log.LUTC | log.Ltime)
+		log.Println("smartos-pxe", version)
 	} else {
 		log.SetFlags(0)
 	}

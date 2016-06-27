@@ -8,7 +8,7 @@ build() {
     rm -rf "$name"
 
     mkdir -p "$name/bin"
-    go build -i -v -ldflags "-w -s" -o "$name/bin/smartos-pxe"
+    go build -i -v -ldflags "-w -s -X main.version=$version" -o "$name/bin/smartos-pxe"
 
     cp -r data "$name/data"
     echo "$name" > "$name/data/BUILD"
