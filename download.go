@@ -15,8 +15,8 @@ import (
 	"time"
 )
 
-func upgrade() error {
-	resp, err := http.Get(upgradeServer + upgradePath)
+func downloadPlatform() error {
+	resp, err := http.Get(downloadServer + downloadLatestPath)
 	if err != nil {
 		return err
 	}
@@ -36,8 +36,8 @@ func upgrade() error {
 		return nil
 	}
 
-	url := upgradeServer + latestDir + "/platform-" + version + ".tgz"
-	if debug {
+	url := downloadServer + latestDir + "/platform-" + version + ".tgz"
+	if verbose {
 		log.Println("Fetching", url)
 	}
 	resp, err = http.Get(url)
@@ -53,7 +53,7 @@ func upgrade() error {
 		return err
 	}
 
-	if debug {
+	if verbose {
 		log.Println("Successfully downloaded new platform", version)
 	}
 	return nil
@@ -88,7 +88,7 @@ func unpackTarGZ(dstdir string, r io.Reader) error {
 			continue
 		}
 
-		if debug {
+		if verbose {
 			log.Println("Unpacking", hdr.Name)
 		}
 

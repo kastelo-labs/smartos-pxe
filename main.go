@@ -21,43 +21,43 @@ type state struct {
 }
 
 var (
-	console         = "ttyS2"
-	listen          = ":69"
-	rootShadow      = "$5$hEQ0l8d5$s0Jwt.oif76hVoQpzsgH2XVKhS8uCXnMlQhXltYgvaB"
-	bootfile        = "grub/pxegrub"
-	datadir         = "data"
-	timeout         = 10 * time.Second
-	upgradeServer   = "https://us-east.manta.joyent.com"
-	upgradePath     = "/Joyent_Dev/public/SmartOS/latest"
-	upgradeInterval = 24 * time.Hour
-	debug           bool
+	bootfile           = "grub/pxegrub"
+	console            = "ttyS2"
+	datadir            = "./data"
+	listen             = ":69"
+	rootShadow         = "$5$5x85uZWD$AQUMEs1UiMwXcjWjYopG2cMUm/eAoFxtjWiHokw7SL."
+	timeout            = 10 * time.Second
+	downloadInterval   = 24 * time.Hour
+	downloadLatestPath = "/Joyent_Dev/public/SmartOS/latest"
+	downloadServer     = "https://us-east.manta.joyent.com"
+	verbose            bool
 )
 
 func main() {
-	flag.BoolVar(&debug, "debug", debug, "Debug output")
-	flag.StringVar(&console, "console", console, "Console device")
-	flag.StringVar(&listen, "listen", listen, "Listen address")
-	flag.StringVar(&rootShadow, "root-pw", rootShadow, "Root password hash")
-	flag.StringVar(&bootfile, "boot-file", bootfile, "Boot file")
+	flag.StringVar(&bootfile, "boot-file", bootfile, "Boot file (within data-dir)")
+	flag.StringVar(&console, "grub-console", console, "GRUB os_console device")
 	flag.StringVar(&datadir, "data-dir", datadir, "Data directory")
-	flag.StringVar(&upgradeServer, "upgrade-server", upgradeServer, "Platform upgrade server")
-	flag.StringVar(&upgradePath, "upgrade-path", upgradePath, "Path to latest platform file")
+	flag.StringVar(&listen, "listen", listen, "TFTP listen address")
+	flag.StringVar(&rootShadow, "root-pw", rootShadow, "Root password hash")
 	flag.DurationVar(&timeout, "grub-timeout", timeout, "GRUB menu timeout")
-	flag.DurationVar(&upgradeInterval, "upgrade-intv", upgradeInterval, "New platform upgrade interval (0 to disable)")
+	flag.DurationVar(&downloadInterval, "download-intv", downloadInterval, "New platform download interval (0 to disable)")
+	flag.StringVar(&downloadLatestPath, "download-latest-path", downloadLatestPath, "Path to latest platform indicator file")
+	flag.StringVar(&downloadServer, "download-server", downloadServer, "Platform download server")
+	flag.BoolVar(&verbose, "verbose", verbose, "Verbose output")
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
-	if debug {
+	if verbose {
 		log.SetFlags(log.Lshortfile | log.LUTC | log.Ltime)
 	} else {
 		log.SetFlags(0)
 	}
 
-	if upgradeInterval > 0 {
-		go autoUpgrade(upgradeInterval)
+	if downloadInterval > 0 {
+		go autoDownload(downloadInterval)
 	}
 
-	if debug {
+	if verbose {
 		log.Println("Listening on", listen)
 	}
 	s := tftp.NewServer(readHandler, nil)
@@ -67,10 +67,10 @@ func main() {
 	}
 }
 
-func autoUpgrade(intv time.Duration) {
+func autoDownload(intv time.Duration) {
 	for {
-		if err := upgrade(); err != nil {
-			log.Println("Downloading upgrade:", err)
+		if err := downloadPlatform(); err != nil {
+			log.Println("Downloading new platform:", err)
 		}
 		time.Sleep(intv)
 	}
@@ -80,19 +80,19 @@ func readHandler(filename string, rf io.ReaderFrom) error {
 	if len(filename) > 0 && filename[0] == '/' {
 		filename = filename[1:]
 	}
-	if debug {
+	if verbose {
 		log.Println("Request for", filename)
 	}
 
 	if strings.HasPrefix(filename, "menu.lst") {
-		if debug {
+		if verbose {
 			log.Println("Redirect", filename, "-> menu.lst")
 		}
 		return menuLst(rf)
 	}
 
 	if filename == "bootfile" {
-		if debug {
+		if verbose {
 			log.Println("Redirect bootfile ->", bootfile)
 		}
 		filename = bootfile
@@ -101,7 +101,7 @@ func readHandler(filename string, rf io.ReaderFrom) error {
 	if strings.HasPrefix(filename, "os/") {
 		parts := strings.Split(filename, "/")
 		newFilename := filepath.Join("platform-"+parts[1], filepath.Join(parts[3:]...))
-		if debug {
+		if verbose {
 			log.Println("Redirect", filename, "->", newFilename)
 		}
 		filename = newFilename
@@ -109,7 +109,7 @@ func readHandler(filename string, rf io.ReaderFrom) error {
 
 	file, err := os.Open(filepath.Join(datadir, filename))
 	if err != nil {
-		if debug {
+		if verbose {
 			log.Printf("Opening %s: %v", filename, err)
 		}
 		return err
@@ -118,23 +118,23 @@ func readHandler(filename string, rf io.ReaderFrom) error {
 
 	if tf, ok := rf.(tftp.OutgoingTransfer); ok {
 		info, _ := file.Stat()
-		if debug {
+		if verbose {
 			log.Println("Size of", filename, info.Size())
 		}
 		tf.SetSize(info.Size())
 	}
 
-	if debug {
+	if verbose {
 		log.Println("Sending", filename, "...")
 	}
 	n, err := rf.ReadFrom(file)
 	if err != nil {
-		if debug {
+		if verbose {
 			log.Printf("Sending %s: %v", filename, err)
 		}
 		return err
 	}
-	if debug {
+	if verbose {
 		log.Println("Sent", filename, n)
 	}
 	return nil
