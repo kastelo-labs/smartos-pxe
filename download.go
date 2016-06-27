@@ -105,10 +105,10 @@ func unpackTarGZ(dstdir string, r io.Reader) error {
 		}
 	}
 
-	tgts, _ := filepath.Glob(tmpdir + "/*")
+	tgts, _ := filepath.Glob(filepath.Join(tmpdir, "*"))
 	for _, tgt := range tgts {
-		newName := strings.Replace(tgt, tmpdir, dstdir, 1)
-		if err := os.Rename(tgt, newName); err != nil {
+		base := filepath.Base(tgt)
+		if err := os.Rename(tgt, filepath.Join(dstdir, base)); err != nil {
 			return err
 		}
 	}
