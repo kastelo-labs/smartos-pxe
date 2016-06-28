@@ -24,7 +24,7 @@ var version = "unknown-dev"
 
 var (
 	bootfile           = "grub/pxegrub"
-	console            = "ttyS2"
+	console            = "vga"
 	datadir            = "./data"
 	listen             = ":69"
 	rootShadow         = "$5$5x85uZWD$AQUMEs1UiMwXcjWjYopG2cMUm/eAoFxtjWiHokw7SL."
