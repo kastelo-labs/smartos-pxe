@@ -7,8 +7,11 @@ build-tar() {
     name="smartos-pxe-$GOOS-$GOARCH-$version"
     rm -rf "$name"
 
+    gb build -ldflags "-w -s -X main.version=$version"
+
     mkdir -p "$name/bin"
-    go build -i -v -ldflags "-w -s -X main.version=$version" -o "$name/bin/smartos-pxe"
+    [ -f bin/smartos-pxe ] && mv bin/smartos-pxe "$name/bin"
+    [ -f "bin/smartos-pxe-$GOOS-$GOARCH" ] && mv "bin/smartos-pxe-$GOOS-$GOARCH" "$name/bin/smartos-pxe"
 
     cp -r data "$name/data"
     echo "$name" > "$name/data/BUILD"
@@ -21,8 +24,11 @@ build-zip() {
     name="smartos-pxe-$GOOS-$GOARCH-$version"
     rm -rf "$name"
 
+    gb build -ldflags "-w -s -X main.version=$version"
+
     mkdir -p "$name/bin"
-    go build -i -v -ldflags "-w -s -X main.version=$version" -o "$name/bin/smartos-pxe.exe"
+    [ -f bin/smartos-pxe.exe ] && mv bin/smartos-pxe "$name/bin"
+    [ -f "bin/smartos-pxe-$GOOS-$GOARCH.exe" ] && mv "bin/smartos-pxe-$GOOS-$GOARCH.exe" "$name/bin/smartos-pxe.exe"
 
     cp -r data "$name/data"
     echo "$name" > "$name/data/BUILD"
