@@ -2,3 +2,4 @@ smartos-tftp
 *.tar.gz
 *.zip
 pkg
+bip
